@@ -10,14 +10,14 @@ import time
 # Disable OneDNN optimizations for potential performance improvements
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
-# Load the trained CNN model
+
 try:
     model = tf.keras.models.load_model('keras_model1.h5')
 except Exception as e:
     print(f"Error loading model: {e}")
     exit(1)
 
-# Load the labels from the file
+
 try:
     with open('labels1.txt', 'r') as f:
         class_names = f.read().splitlines()
@@ -25,10 +25,10 @@ except Exception as e:
     print(f"Error loading labels: {e}")
     exit(1)
 
-# Camera dimensions
+
 wCam, hCam = 648, 488
 
-# Start video capture
+
 capture = cv.VideoCapture(0)
 if not capture.isOpened():
     print("Error: Could not open camera.")
@@ -37,7 +37,7 @@ if not capture.isOpened():
 capture.set(3, wCam)
 capture.set(4, hCam)
 
-# Initialize hand detector
+
 try:
     detector = htm.handDetector(detectCon=0.9)
 except Exception as e:
@@ -45,15 +45,15 @@ except Exception as e:
     capture.release()
     exit(1)
 
-# Prepare an array to hold the preprocessed image data
+
 data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-# Load images for random numbers
+
 number_images = {}
 for num in [1, 2, 3, 4, 6]:
     img = cv.imread(f'num_images/{num}.png')
     if img is not None:
-        img = cv.resize(img, (100, 100))  # Resize to fit the display area
+        img = cv.resize(img, (100, 100))  
         number_images[num] = img
     else:
         print(f"Warning: Image for number {num} not found.")
@@ -61,7 +61,7 @@ for num in [1, 2, 3, 4, 6]:
 player_score = 0
 computer_score = 0
 wickets = 0
-computer_wickets = 0  # Initialize computer wickets
+computer_wickets = 0  
 game_over = False
 waiting_for_input = False
 show_intro = True
@@ -73,7 +73,7 @@ player_batting = True
 
 def generate_random_number():
     numbers = [1, 2, 3, 4, 6]
-    weights = [1, 1, 2, 3, 5]  # Higher weight for the number 6
+    weights = [1, 1, 2, 3, 5]  
     return random.choices(numbers, weights=weights, k=1)[0]
 
 def display_text(frame, text, position, color, scale=0.8, thickness=1, bg_color=None):
@@ -91,7 +91,7 @@ def display_game_status(frame):
     display_text(frame, f"Player Score: {player_score}", (50, 50), (0, 255, 0), scale=0.8)
     display_text(frame, f"Computer Score: {computer_score}", (50, 100), (0, 255, 0), scale=0.8)
     display_text(frame, f"Player Wickets: {wickets}", (50, 150), (0, 255, 0), scale=0.8)
-    display_text(frame, f"Computer Wickets: {computer_wickets}", (50, 200), (0, 255, 0), scale=0.8)  # Display computer wickets
+    display_text(frame, f"Computer Wickets: {computer_wickets}", (50, 200), (0, 255, 0), scale=0.8)  
     display_text(frame, f"Round: {current_round}/{max_rounds}", (50, 250), (0, 255, 0), scale=0.8)
     display_text(frame, "Press 's' to Continue, 'n' to Restart, or 'q' to Quit", (50, 300), (0, 255, 0), scale=0.8)
 
@@ -105,7 +105,7 @@ def display_game_status(frame):
 
 def check_game_over():
     global game_over
-    if wickets >= 3 or computer_wickets >= 3 or current_round >= max_rounds:  # Include computer wickets in the game over condition
+    if wickets >= 3 or computer_wickets >= 3 or current_round >= max_rounds:  
         game_over = True
         return True
     return False
@@ -123,13 +123,13 @@ try:
             key = cv.waitKey(1) & 0xFF
             if key == ord('s'):
                 show_intro = False
-                current_round = 1  # Start from round 1
-                random_number = generate_random_number()  # Initialize the random number
-                player_batting = True  # Player starts batting
+                current_round = 1  
+                random_number = generate_random_number()  
+                player_batting = True  
                 computer_score = 0
                 player_score = 0
                 wickets = 0
-                computer_wickets = 0  # Reset computer wickets
+                computer_wickets = 0  
                 continue
             elif key == ord('q'):
                 break
@@ -143,7 +143,7 @@ try:
                 player_score = 0
                 computer_score = 0
                 wickets = 0
-                computer_wickets = 0  # Reset computer wickets
+                computer_wickets = 0  
                 game_over = False
                 waiting_for_input = False
                 show_intro = True
@@ -192,9 +192,9 @@ try:
             cropped_frame = frame[y_min:y_max, x_min:x_max]
             if cropped_frame.size > 0:
                 try:
-                    # Display the frame and wait before processing
+                    
                     cv.imshow('Hand Cricket Game', frame)
-                    cv.waitKey(1500)  # Increased delay before prediction
+                    cv.waitKey(1500)  
 
                     image = Image.fromarray(cropped_frame)
                     image = ImageOps.fit(image, (224, 224), Image.Resampling.LANCZOS)
@@ -202,8 +202,8 @@ try:
                     normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
                     data[0] = normalized_image_array
 
-                    # Add delay before model prediction to ensure it is not too frequent
-                    cv.waitKey(500)  # 500ms delay before prediction
+                    
+                    cv.waitKey(500)  
 
                     prediction = model.predict(data)
                     predicted_class = class_names[np.argmax(prediction)]
@@ -226,7 +226,7 @@ try:
                         player_batting = not player_batting
                     else:
                         if predicted_number == random_number:
-                            computer_wickets += 1  # Update computer wickets
+                            computer_wickets += 1  
                             if check_game_over():
                                 game_over = True
                         else:
