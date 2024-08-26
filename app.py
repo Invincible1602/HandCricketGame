@@ -27,10 +27,10 @@ except Exception as e:
 
 
 def play_game():
-    # Camera dimensions
+    
     wCam, hCam = 648, 488
 
-    # Start video capture
+    
     capture = cv.VideoCapture(0)
     if not capture.isOpened():
         print("Error: Could not open camera.")
@@ -39,7 +39,7 @@ def play_game():
     capture.set(3, wCam)
     capture.set(4, hCam)
 
-    # Initialize hand detector
+    #
     try:
         detector = htm.handDetector(detectCon=0.9)
     except Exception as e:
@@ -55,7 +55,7 @@ def play_game():
     for num in [1, 2, 3, 4, 6]:
         img = cv.imread(f'num_images/{num}.png')
         if img is not None:
-            img = cv.resize(img, (100, 100))  # Resize to fit the display area
+            img = cv.resize(img, (100, 100))  
             number_images[num] = img
         else:
             print(f"Warning: Image for number {num} not found.")
